@@ -4,6 +4,7 @@ import { AuthContext } from '../../context/AuthContext'
 
 const LoginPage = () => {
 
+  const [agreed, setAgreed] = useState(false);
   const [currState, setCurrState] = useState("Sign Up")
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
@@ -11,23 +12,29 @@ const LoginPage = () => {
   const [bio, setBio] = useState("")
   const [isDataSubmitted, setIsDataSubmitted] = useState(false);
 
-  const {login} = useContext(AuthContext)
+  const { login } = useContext(AuthContext)
 
   const onSubmitHandler = (event) => {
     event.preventDefault();
-  
+
+    if (!agreed) {
+      toast.error("You must agree to the terms and privacy policy.");
+      return;
+    }
+
     if (currState === "Sign Up") {
       if (!isDataSubmitted) {
         setIsDataSubmitted(true);
         return;
       }
-  
+
       login("signup", { fullName, email, password, bio });
     } else {
       login("login", { email, password });
     }
   };
-  
+
+
   return (
     <div className='min-h-screen bg-cover bg-center flex items-center justify-center gap-8 sm:justify-evenly max-sm:flex-col backdrop-blur-2xl'>
       <img src={assets.logo_big} alt="" className='w-[min(30vw,250px)]' />
@@ -60,15 +67,20 @@ const LoginPage = () => {
           )
         }
 
-        <button type='submit' className='py-3 bg-gradient-to-r from-purple-400
-      to-violet-600 text-white rounded-md cursor-pointer'>
+        <button
+          type='submit'
+          disabled={!agreed}
+          className={`py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer ${!agreed && 'opacity-50 cursor-not-allowed'}`}
+        >
           {currState === "Sign Up" ? "Create Account" : "Login Now"}
         </button>
 
+
         <div className='flex items-center gap-2 text-sm text-gray-500'>
-          <input type="checkbox" />
+          <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} />
           <p>Agree to the terms of use and privacy policy.</p>
         </div>
+
 
         <div className='flex flex-col gap-2'>
           {currState === "Sign Up" ? (
